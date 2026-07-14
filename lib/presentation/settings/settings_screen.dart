@@ -9,7 +9,7 @@ import '../providers/cycle_provider.dart';
 import '../providers/view_state.dart';
 import '../splash/splash_screen.dart';
 
-/// Settings tab: profile summary, premium upsell, account/support
+///Settings tab: profile summary, premium upsell, account/support
 /// options, and logout.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
