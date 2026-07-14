@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_spacing.dart';
 import '../constants/app_text_styles.dart';
-import 'moodly_nav_rail.dart';
+import 'nav_destination.dart';
 
 /// Bottom navigation bar matching the Figma design: rose pill highlight
 /// behind the active tab, script-adjacent serif labels.

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
+/// Centralized typography for Moodly.
+///
 /// Figma uses two typefaces:
 /// - "Petit Formal Script" for the wordmark and decorative section
 ///   headings (cursive, elegant).
@@ -26,55 +28,55 @@ class AppTextStyles {
       );
 
   // Serif body styles
-  static TextStyle h1 = GoogleFonts.sourceSerifPro(
+  static TextStyle h1 = GoogleFonts.sourceSerif4(
     fontSize: 24,
     fontWeight: FontWeight.w700,
     color: AppColors.textDark,
   );
 
-  static TextStyle h2 = GoogleFonts.sourceSerifPro(
+  static TextStyle h2 = GoogleFonts.sourceSerif4(
     fontSize: 20,
     fontWeight: FontWeight.w700,
     color: AppColors.textDark,
   );
 
-  static TextStyle bodyLarge = GoogleFonts.sourceSerifPro(
+  static TextStyle bodyLarge = GoogleFonts.sourceSerif4(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: AppColors.textDark,
   );
 
-  static TextStyle body = GoogleFonts.sourceSerifPro(
+  static TextStyle body = GoogleFonts.sourceSerif4(
     fontSize: 14,
     fontWeight: FontWeight.w400,
     color: AppColors.textDark,
   );
 
-  static TextStyle bodyMuted = GoogleFonts.sourceSerifPro(
+  static TextStyle bodyMuted = GoogleFonts.sourceSerif4(
     fontSize: 13,
     fontWeight: FontWeight.w400,
     color: AppColors.textMuted,
   );
 
-  static TextStyle label = GoogleFonts.sourceSerifPro(
+  static TextStyle label = GoogleFonts.sourceSerif4(
     fontSize: 13,
     fontWeight: FontWeight.w600,
     color: AppColors.textDark,
   );
 
-  static TextStyle button = GoogleFonts.sourceSerifPro(
+  static TextStyle button = GoogleFonts.sourceSerif4(
     fontSize: 16,
     fontWeight: FontWeight.w600,
     color: AppColors.textOnRose,
   );
 
-  static TextStyle statNumber = GoogleFonts.sourceSerifPro(
+  static TextStyle statNumber = GoogleFonts.sourceSerif4(
     fontSize: 26,
     fontWeight: FontWeight.w700,
     color: AppColors.textDark,
   );
 
-  static TextStyle navLabel = GoogleFonts.sourceSerifPro(
+  static TextStyle navLabel = GoogleFonts.sourceSerif4(
     fontSize: 11,
     fontWeight: FontWeight.w500,
     color: AppColors.deepRose,

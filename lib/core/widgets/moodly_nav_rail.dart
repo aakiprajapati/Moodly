@@ -1,63 +1,49 @@
 import 'package:flutter/material.dart';
-import '../utils/responsive.dart';
-import 'moodly_app_bar.dart';
-import 'moodly_bottom_nav.dart';
-import 'moodly_nav_rail.dart';
+import '../constants/app_colors.dart';
+import '../constants/app_text_styles.dart';
+import 'nav_destination.dart';
 
-/// The single scaffold every top-level screen (Calendar, Log, Insights,
-/// Settings) is built on. Handles the responsive switch between a
-/// bottom nav bar (mobile) and a side nav rail (tablet/web/desktop) so
-/// individual screens never have to think about layout adaptation.
-class MoodlyScaffold extends StatelessWidget {
-  const MoodlyScaffold({
+/// Side navigation rail shown on tablet, web, and desktop widths, so the
+/// same four destinations from [MoodlyBottomNav] remain reachable
+/// without wasting horizontal space on large screens.
+class MoodlyNavRail extends StatelessWidget {
+  const MoodlyNavRail({
     super.key,
     required this.currentIndex,
-    required this.onNavTap,
-    required this.body,
-    this.floatingActionButton,
+    required this.onTap,
+    this.extended = false,
   });
 
   final int currentIndex;
-  final ValueChanged<int> onNavTap;
-  final Widget body;
-  final Widget? floatingActionButton;
+  final ValueChanged<int> onTap;
+  final bool extended;
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Responsive.isMobile(context);
-    final isDesktop = Responsive.isDesktop(context);
-
-    final content = SafeArea(
-      child: Responsive.centeredContent(context: context, child: body),
-    );
-
-    if (isMobile) {
-      return Scaffold(
-        appBar: const MoodlyAppBar(),
-        body: content,
-        bottomNavigationBar: MoodlyBottomNav(
-          currentIndex: currentIndex,
-          onTap: onNavTap,
-        ),
-        floatingActionButton: floatingActionButton,
-      );
-    }
-
-    // Tablet / web / desktop: side rail instead of bottom bar.
-    return Scaffold(
-      appBar: const MoodlyAppBar(),
-      body: Row(
-        children: [
-          MoodlyNavRail(
-            currentIndex: currentIndex,
-            onTap: onNavTap,
-            extended: isDesktop,
+    return Container(
+      color: AppColors.surfaceCard,
+      child: NavigationRail(
+        selectedIndex: currentIndex,
+        onDestinationSelected: onTap,
+        extended: extended,
+        minExtendedWidth: 180,
+        backgroundColor: AppColors.surfaceCard,
+        selectedIconTheme: const IconThemeData(color: AppColors.textOnRose),
+        unselectedIconTheme: const IconThemeData(color: AppColors.deepRose),
+        selectedLabelTextStyle:
+        AppTextStyles.navLabel.copyWith(color: AppColors.deepRose),
+        unselectedLabelTextStyle: AppTextStyles.navLabel,
+        useIndicator: true,
+        indicatorColor: AppColors.primaryRose,
+        destinations: MoodlyDestination.values
+            .map(
+              (d) => NavigationRailDestination(
+            icon: Icon(d.icon),
+            label: Text(d.label),
           ),
-          const VerticalDivider(width: 1),
-          Expanded(child: content),
-        ],
+        )
+            .toList(),
       ),
-      floatingActionButton: floatingActionButton,
     );
   }
 }
