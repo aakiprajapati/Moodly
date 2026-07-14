@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+
+/// Centralized color palette for Moodly, pulled directly from the Figma
+/// design file. Never hardcode a color in a screen/widget — reference
+/// these constants instead so the theme stays consistent and easy to
+/// update in one place.
+class AppColors {
+  AppColors._();
+
+  // Base surfaces
+  static const Color background = Color(0xFFFDF8E3); // cream app background
+  static const Color surfaceCard = Color(0xFFF0BEC0); // dusty pink cards
+  static const Color surfaceCardLight =
+      Color(0xFFFBEAEA); // pale pink (chips, inputs, secondary buttons)
+
+  // Accent / brand
+  static const Color primaryRose = Color(0xFFB97D7D); // buttons, active nav
+  static const Color deepRose = Color(0xFFA66B6B); // headings, strong accent
+  static const Color softRose = Color(0xFFDDA0A0); // progress bar fill
+
+  // Text
+  static const Color textDark = Color(0xFF4A3B35);
+  static const Color textMuted = Color(0xFF9C8577);
+  static const Color textOnRose = Color(0xFFFDF8E3);
+
+  // Mood trend bar colors (Insights screen)
+  static const Color moodCalm = Color(0xFF7FA688);
+  static const Color moodEnergetic = Color(0xFFE8D34C);
+  static const Color moodTired = Color(0xFF5FBEC7);
+  static const Color trendTrack = Color(0xFFCF9C9C);
+
+  // Status
+  static const Color error = Color(0xFFB3261E);
+  static const Color divider = Color(0x33A66B6B);
+}
