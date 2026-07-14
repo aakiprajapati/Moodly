@@ -48,8 +48,7 @@ class SettingsScreen extends StatelessWidget {
                         const CircleAvatar(
                           radius: 44,
                           backgroundColor: AppColors.surfaceCard,
-                          child: Icon(Icons.person_outline,
-                              size: 40, color: AppColors.deepRose),
+                          backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         Text(user.name, style: AppTextStyles.h1),

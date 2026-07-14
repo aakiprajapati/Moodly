@@ -63,10 +63,10 @@ class _SplashScreenState extends State<SplashScreen> {
                 children: [
                   // Moon + lotus mark. Swap for the real exported asset
                   // at assets/images/logo_mark.png when available.
-                  Icon(
-                    Icons.spa,
-                    size: 96,
-                    color: AppColors.primaryRose,
+                  Image.asset(
+                    'assets/images/moodlylogo.png',
+                    width: 96,
+                    height: 96,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Text('Moodly', style: AppTextStyles.logo(fontSize: 40)),
