@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'core/theme/app_theme.dart';
+import 'core/themes/app_theme.dart';
 import 'data/repositories/cycle_repository.dart';
 import 'presentation/providers/cycle_provider.dart';
 import 'presentation/splash/splash_screen.dart';
