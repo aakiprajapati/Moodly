@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "38032087372",
+    "project_id": "moodly-c200a",
+    "storage_bucket": "moodly-c200a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38032087372:android:b2028a347ed8a47d7517e9",
+        "android_client_info": {
+          "package_name": "com.aaki.moodly"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgobxRJ_SFUOiu1-HksbJYlmZ0DbjpZbo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
