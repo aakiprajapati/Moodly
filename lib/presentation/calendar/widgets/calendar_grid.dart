@@ -35,7 +35,8 @@ class _CalendarGridState extends State<CalendarGrid> {
   bool _isPredicted(DateTime day) {
     final nextStart = widget.cycleData.nextPeriodStartDate;
     final predictedEnd = nextStart.add(const Duration(days: 4));
-    return !day.isBefore(nextStart) && day.isBefore(predictedEnd);
+    final dayOnly = DateTime(day.year, day.month, day.day);
+    return !dayOnly.isBefore(nextStart) && dayOnly.isBefore(predictedEnd);
   }
 
   @override
@@ -101,25 +102,27 @@ class _CalendarGridState extends State<CalendarGrid> {
             itemCount: cellCount,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,
+              // Extra vertical room so the "Today" label fits under the
+              // circle without overflowing the cell.
+              childAspectRatio: 0.78,
             ),
             itemBuilder: (context, index) {
-              final dayNumber = index - leadingBlanks + 1;
-              final isInCurrentMonth =
-                  dayNumber >= 1 && dayNumber <= daysInMonth;
-
-              // Only meaningful when isInCurrentMonth is true — marker
-              // checks below are always guarded by that flag.
+              // Computing the real DateTime this way (instead of a bare
+              // day-number) lets DateTime itself handle month rollover,
+              // so overflow cells (28, 29, 30 before the 1st; the
+              // trailing "1") get correct real dates and can still show
+              // logged/predicted markers, matching the Figma where the
+              // dotted prediction range crosses into next month.
               final cellDate =
-              DateTime(_visibleMonth.year, _visibleMonth.month, dayNumber);
+              firstDayOfMonth.add(Duration(days: index - leadingBlanks));
+              final isInCurrentMonth = cellDate.month == _visibleMonth.month;
 
-              final isToday = isInCurrentMonth && _isSameDay(cellDate, today);
-              final logged = isInCurrentMonth && _isLogged(cellDate);
-              final predicted = isInCurrentMonth && _isPredicted(cellDate);
+              final isToday = _isSameDay(cellDate, today);
+              final logged = _isLogged(cellDate);
+              final predicted = _isPredicted(cellDate);
 
               return _DayCell(
-                label: isInCurrentMonth
-                    ? dayNumber.toString()
-                    : _outOfMonthLabel(dayNumber, daysInMonth),
+                label: cellDate.day.toString(),
                 isInCurrentMonth: isInCurrentMonth,
                 isToday: isToday,
                 logged: logged,
@@ -143,17 +146,6 @@ class _CalendarGridState extends State<CalendarGrid> {
       ),
     );
   }
-
-  /// Renders the previous/next month's overflow days (e.g. 28, 29, 30 at
-  /// the start, 1 at the end) the way the Figma grid shows them.
-  String _outOfMonthLabel(int dayNumber, int daysInCurrentMonth) {
-    if (dayNumber < 1) {
-      final prevMonthLastDay =
-          DateTime(_visibleMonth.year, _visibleMonth.month, 0).day;
-      return (prevMonthLastDay + dayNumber).toString();
-    }
-    return (dayNumber - daysInCurrentMonth).toString();
-  }
 }
 
 class _DayCell extends StatelessWidget {
@@ -173,36 +165,116 @@ class _DayCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Today always shows light pink, even if it also happens to be a
+    // logged day; logged (non-today) days show dark pink.
+    final Color? fillColor = isToday
+        ? AppColors.surfaceCardLight
+        : logged
+        ? AppColors.deepRose
+        : null;
+
+    // Text color must follow the actual fill shown above, not the raw
+    // `logged` flag — otherwise a logged "today" gets light-pink fill
+    // but cream (textOnRose) text, which is nearly invisible.
     final textColor = !isInCurrentMonth
         ? AppColors.textMuted.withOpacity(0.4)
-        : logged
+        : fillColor == AppColors.deepRose
         ? AppColors.textOnRose
         : AppColors.textDark;
 
     return Padding(
       padding: const EdgeInsets.all(2),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: logged ? AppColors.deepRose : Colors.transparent,
-            border: predicted
-                ? Border.all(color: AppColors.primaryRose, width: 1.5)
-                : isToday
-                ? Border.all(color: AppColors.deepRose, width: 1.5)
-                : null,
-          ),
-          child: Center(
-            child: Text(
-              label,
-              style: AppTextStyles.body.copyWith(color: textColor),
-            ),
-          ),
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Reserve room for the "Today" label so the circle never has
+          // to compete with it for space — this is what was causing
+          // both the overflow and the squashed/non-circular shape.
+          final labelHeight = isToday ? 14.0 : 0.0;
+          final circleSize =
+          (constraints.maxHeight - labelHeight).clamp(0.0, constraints.maxWidth);
+
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: circleSize,
+                height: circleSize,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (fillColor != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: fillColor,
+                        ),
+                      ),
+                    if (predicted)
+                      CustomPaint(
+                        size: Size(circleSize, circleSize),
+                        painter:
+                        _DashedCirclePainter(color: AppColors.primaryRose),
+                      ),
+                    Text(
+                      label,
+                      style: AppTextStyles.body
+                          .copyWith(color: textColor, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              if (isToday)
+                Text(
+                  'Today',
+                  style: AppTextStyles.label.copyWith(fontSize: 9),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          );
+        },
       ),
     );
   }
+}
+
+/// Draws a dashed circle outline — Flutter has no built-in dashed
+/// [Border], so this hand-rolls one for the "predicted" day markers.
+class _DashedCirclePainter extends CustomPainter {
+  _DashedCirclePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+
+    final radius = (size.shortestSide - paint.strokeWidth) / 2;
+    final center = Offset(size.width / 2, size.height / 2);
+    const dashCount = 16;
+    const dashFraction = 0.6; // portion of each segment that's "on"
+
+    for (int i = 0; i < dashCount; i++) {
+      final startAngle = (i / dashCount) * 2 * 3.141592653589793;
+      final sweepAngle =
+          (1 / dashCount) * 2 * 3.141592653589793 * dashFraction;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashedCirclePainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class _LegendDot extends StatelessWidget {

@@ -48,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
                         const CircleAvatar(
                           radius: 44,
                           backgroundColor: AppColors.surfaceCard,
-                          backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+                          backgroundImage: AssetImage('assets/images/pfp.jpg'),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         Text(user.name, style: AppTextStyles.h1),
@@ -102,9 +102,12 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _logout(BuildContext context) {
-    // For this build, "logout" simply returns to the splash flow.
-    // A real backend integration would clear auth tokens here first.
+  void _logout(BuildContext context) async {
+    // Clear cycle data / mood entries first so the splash screen's
+    // hasOnboarded check correctly treats this as a fresh, un-onboarded
+    // user rather than routing straight back to the calendar.
+    await context.read<CycleProvider>().logout();
+    if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const SplashScreen()),
           (route) => false,

@@ -44,7 +44,7 @@ class CycleProvider extends ChangeNotifier {
         _repository.fetchMoodEntries(),
       ]);
 
-      _cycleData = results[0] as CycleData;
+      _cycleData = results[0] as CycleData?;
       _userProfile = results[1] as UserProfile;
       _moodEntries = results[2] as List<MoodEntry>;
 
@@ -89,6 +89,15 @@ class CycleProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<void> logout() async {
+    await _repository.logout();
+    _cycleData = null;
+    _moodEntries = [];
+    _userProfile = null;
+    _state = ViewState.initial;
+    notifyListeners();
   }
 
   /// Today's entry, if one has already been logged, used to pre-fill
