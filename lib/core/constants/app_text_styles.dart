@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Centralized typography for Moodly.
-///
 /// Figma uses two typefaces:
 /// - "Petit Formal Script" for the wordmark and decorative section
 ///   headings (cursive, elegant).

@@ -11,7 +11,7 @@ class AppColors {
   static const Color background = Color(0xFFFDF8E3); // cream app background
   static const Color surfaceCard = Color(0xFFF0BEC0); // dusty pink cards
   static const Color surfaceCardLight =
-      Color(0xFFFBEAEA); // pale pink (chips, inputs, secondary buttons)
+  Color(0xFFFBEAEA); // pale pink (chips, inputs, secondary buttons)
 
   // Accent / brand
   static const Color primaryRose = Color(0xFFB97D7D); // buttons, active nav
