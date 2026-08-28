@@ -12,7 +12,20 @@
           "package_name": "com.aaki.moodly.moodly"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "327425222350-keplk084mgmesvm18l4h8ai1r45fl0hg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aaki.moodly.moodly",
+            "certificate_hash": "fc01780e400fdc727ffe5aa14a0414fca56794fc"
+          }
+        },
+        {
+          "client_id": "327425222350-f9h94g1bjhif07qi3cg4hj81qj2n1rb8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDuXE3gydFfMn0yXZi2TaRQ6j0H_0aU9D8"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "327425222350-f9h94g1bjhif07qi3cg4hj81qj2n1rb8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

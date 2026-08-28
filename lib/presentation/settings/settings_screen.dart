@@ -5,6 +5,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
 import '../../core/widgets/state_views.dart';
+import '../providers/auth_provider.dart';
 import '../providers/cycle_provider.dart';
 import '../providers/view_state.dart';
 import '../splash/splash_screen.dart';
@@ -103,10 +104,14 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _logout(BuildContext context) async {
-    // Clear cycle data / mood entries first so the splash screen's
-    // hasOnboarded check correctly treats this as a fresh, un-onboarded
-    // user rather than routing straight back to the calendar.
+    // Clear local cycle/mood data first...
     await context.read<CycleProvider>().logout();
+
+    // ...then actually sign the user out of Firebase/Google. Without
+    // this, auth.isSignedIn stays true and SplashScreen routes right
+    // back into the app instead of showing the login screen.
+    await context.read<AuthProvider>().signOut();
+
     if (!context.mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const SplashScreen()),

@@ -7,6 +7,8 @@ import '../../core/utils/responsive.dart';
 import '../onboarding/onboarding_screen.dart';
 import '../providers/cycle_provider.dart';
 import '../providers/view_state.dart';
+import '../providers/auth_provider.dart';
+import '../login_screen.dart';
 import '../root/root_shell.dart';
 
 /// First screen shown on launch. Kicks off [CycleProvider.loadInitialData]
@@ -36,10 +38,16 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (!mounted) return;
 
-    final destination = provider.state == ViewState.loaded &&
-        provider.hasOnboarded
-        ? const RootShell()
-        : const OnboardingScreen();
+    final auth = context.read<AuthProvider>();
+
+    Widget destination;
+    if (!auth.isSignedIn) {
+      destination = const LoginScreen();
+    } else {
+      // if signed in, consult per-user onboarding flag
+      final onboarded = await auth.isOnboardedForCurrentUser();
+      destination = onboarded ? const RootShell() : const OnboardingScreen();
+    }
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => destination),

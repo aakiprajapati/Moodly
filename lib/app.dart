@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'core/themes/app_theme.dart';
 import 'data/repositories/cycle_repository.dart';
 import 'presentation/providers/cycle_provider.dart';
+import 'presentation/providers/auth_provider.dart';
 import 'presentation/splash/splash_screen.dart';
 
 /// Root widget: sets up dependency injection (repository -> provider)
@@ -15,6 +16,7 @@ class MoodlyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<CycleRepository>(create: (_) => LocalCycleRepository()),
+        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
         ChangeNotifierProvider<CycleProvider>(
           create: (context) => CycleProvider(context.read<CycleRepository>()),
         ),

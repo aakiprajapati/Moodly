@@ -6,6 +6,7 @@ import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/utils/responsive.dart';
 import '../providers/cycle_provider.dart';
+import '../providers/auth_provider.dart';
 import '../root/root_shell.dart';
 
 /// First-run screen collecting the two inputs needed to start tracking:
@@ -78,6 +79,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     setState(() => _isSaving = false);
 
     if (success) {
+      // mark onboarding complete for this signed-in user (if any)
+      try {
+        await context.read<AuthProvider>().markOnboardedForCurrentUser();
+      } catch (_) {}
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const RootShell()),
       );

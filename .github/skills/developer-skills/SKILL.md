@@ -1,0 +1,3 @@
+- Provider patterns
+- Widget composition & folder layout per feature
+- API client conventions + error handling
