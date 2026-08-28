@@ -7,12 +7,12 @@ import '../../core/widgets/state_views.dart';
 import '../../data/models/cycle_data.dart';
 import '../providers/cycle_provider.dart';
 import '../providers/view_state.dart';
-import '../root/root_shell.dart';
 import 'widgets/calendar_grid.dart';
 import 'widgets/cycle_progress_card.dart';
 
 /// Home tab: current cycle summary + month calendar with logged /
-/// predicted day markers. A floating "+" button jumps to the Log tab.
+/// predicted day markers. A floating "+" button opens a date picker to
+/// log a period start date.
 class CalendarScreen extends StatelessWidget {
   const CalendarScreen({super.key});
 
@@ -54,6 +54,37 @@ class _CalendarContent extends StatelessWidget {
 
   final CycleData cycleData;
 
+  Future<void> _logPeriod(BuildContext context) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      // Allow picking a period start from a few years back (backfilling
+      // history) up to a few months ahead (logging an expected/early
+      // period in advance).
+      firstDate: DateTime(now.year - 3),
+      lastDate: DateTime(now.year, now.month + 6, now.day),
+      helpText: 'Select period start date',
+    );
+
+    if (picked == null || !context.mounted) return;
+
+    final provider = context.read<CycleProvider>();
+    final success = await provider.logPeriodStart(picked);
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? 'Period logged for ${picked.month}/${picked.day}/${picked.year}.'
+              : provider.errorMessage ?? 'Could not log your period.',
+        ),
+        backgroundColor: success ? AppColors.primaryRose : AppColors.error,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -82,14 +113,7 @@ class _CalendarContent extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
             ),
-            onPressed: () {
-              // Jump to the Log tab so the user can add today's entry.
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => const RootShell(initialIndex: 1),
-                ),
-              );
-            },
+            onPressed: () => _logPeriod(context),
             child: const Icon(Icons.add),
           ),
         ),

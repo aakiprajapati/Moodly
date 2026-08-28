@@ -91,6 +91,24 @@ class CycleProvider extends ChangeNotifier {
     }
   }
 
+  /// Logs a period start date, either creating or updating cycle data.
+  /// If the date is the most recent period on record, it becomes the
+  /// new "current cycle" anchor; otherwise it's recorded as history
+  /// (e.g. backfilling a past month) without disturbing today's cycle
+  /// position. See [CycleRepository.logPeriodStart] for details.
+  Future<bool> logPeriodStart(DateTime date) async {
+    try {
+      await _repository.logPeriodStart(date);
+      _cycleData = await _repository.fetchCycleData();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = 'Could not log your period. Please try again.';
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> logout() async {
     await _repository.logout();
     _cycleData = null;

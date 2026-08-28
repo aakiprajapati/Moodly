@@ -5,6 +5,7 @@ import '../core/constants/app_spacing.dart';
 import '../core/constants/app_text_styles.dart';
 import '../core/utils/responsive.dart';
 import 'providers/auth_provider.dart';
+import 'providers/cycle_provider.dart';
 import 'onboarding/onboarding_screen.dart';
 import 'root/root_shell.dart';
 
@@ -35,6 +36,13 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       final onboarded = await auth.isOnboardedForCurrentUser();
+      if (!mounted) return;
+
+      // Refresh CycleProvider with this account's data now that we're
+      // signed in — otherwise it's still holding the empty state left
+      // over from a previous logout(), and Insights/Calendar look
+      // like the data vanished even though it's still on disk.
+      await context.read<CycleProvider>().loadInitialData();
       if (!mounted) return;
 
       if (onboarded) {
