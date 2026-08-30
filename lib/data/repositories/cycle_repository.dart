@@ -77,6 +77,8 @@ class LocalCycleRepository implements CycleRepository {
     'regularityPercent': data.regularityPercent,
     'loggedDates':
     data.loggedDates.map((d) => d.toIso8601String()).toList(),
+    'currentPeriodDates':
+    data.currentPeriodDates.map((d) => d.toIso8601String()).toList(),
   };
 
   CycleData _cycleDataFromJson(Map<String, dynamic> json) => CycleData(
@@ -85,6 +87,11 @@ class LocalCycleRepository implements CycleRepository {
     DateTime.parse(json['lastPeriodStartDate'] as String),
     regularityPercent: json['regularityPercent'] as int,
     loggedDates: (json['loggedDates'] as List)
+        .map((s) => DateTime.parse(s as String))
+        .toSet(),
+    // Guarded with ?? [] so data saved before this field existed
+    // doesn't crash on load.
+    currentPeriodDates: ((json['currentPeriodDates'] as List?) ?? [])
         .map((s) => DateTime.parse(s as String))
         .toSet(),
   );
@@ -166,18 +173,17 @@ class LocalCycleRepository implements CycleRepository {
       if (uid == null) throw StateError('No signed-in user.');
 
       final existing = await fetchCycleData();
+      final startDateOnly = DateTime(
+        lastPeriodStartDate.year,
+        lastPeriodStartDate.month,
+        lastPeriodStartDate.day,
+      );
 
       // The 5 days starting from lastPeriodStartDate represent the period
       // itself — shown as dark pink "logged" circles on the calendar,
       // matching the menstrual-phase window used in CycleData.phase.
-      final periodDates = List.generate(
-        5,
-            (i) => DateTime(
-          lastPeriodStartDate.year,
-          lastPeriodStartDate.month,
-          lastPeriodStartDate.day,
-        ).add(Duration(days: i)),
-      );
+      final periodDates =
+      List.generate(5, (i) => startDateOnly.add(Duration(days: i)));
 
       final CycleData updated;
       if (existing == null) {
@@ -185,18 +191,25 @@ class LocalCycleRepository implements CycleRepository {
         // scratch using what the user entered.
         updated = CycleData(
           averageCycleLengthDays: averageCycleLengthDays,
-          lastPeriodStartDate: lastPeriodStartDate,
+          lastPeriodStartDate: startDateOnly,
           regularityPercent: 94,
           loggedDates: {...periodDates},
+          currentPeriodDates: {...periodDates},
         );
       } else {
-        // Re-onboarding / editing details later: keep existing
-        // loggedDates (e.g. mood check-ins) and merge in the new period
-        // range, updating the two changed fields.
+        // Re-onboarding / editing details later: remove exactly the
+        // dates we know we previously marked as the active period
+        // window (currentPeriodDates), then add the new window — no
+        // guessing, so nothing is ever orphaned.
+        final mergedLoggedDates = {...existing.loggedDates}
+          ..removeAll(existing.currentPeriodDates)
+          ..addAll(periodDates);
+
         updated = existing.copyWith(
           averageCycleLengthDays: averageCycleLengthDays,
-          lastPeriodStartDate: lastPeriodStartDate,
-          loggedDates: {...existing.loggedDates, ...periodDates},
+          lastPeriodStartDate: startDateOnly,
+          loggedDates: mergedLoggedDates,
+          currentPeriodDates: {...periodDates},
         );
       }
 
@@ -264,26 +277,21 @@ class LocalCycleRepository implements CycleRepository {
           lastPeriodStartDate: startDateOnly,
           regularityPercent: 94,
           loggedDates: {...periodDates},
+          currentPeriodDates: {...periodDates},
         );
       } else {
-        // Every log replaces whatever period window is currently
-        // shown — only one highlighted period window exists at a time,
-        // no matter what date the user picks.
-        final oldStartOnly = DateTime(
-          existing.lastPeriodStartDate.year,
-          existing.lastPeriodStartDate.month,
-          existing.lastPeriodStartDate.day,
-        );
-        final oldWindow =
-        List.generate(5, (i) => oldStartOnly.add(Duration(days: i)));
-
+        // Remove exactly the dates we know we previously marked as the
+        // active period window (currentPeriodDates) — not a recomputed
+        // guess — then add the new window. Only one highlighted period
+        // window ever exists, and nothing gets orphaned.
         final mergedLoggedDates = {...existing.loggedDates}
-          ..removeAll(oldWindow)
+          ..removeAll(existing.currentPeriodDates)
           ..addAll(periodDates);
 
         updated = existing.copyWith(
           lastPeriodStartDate: startDateOnly,
           loggedDates: mergedLoggedDates,
+          currentPeriodDates: {...periodDates},
         );
       }
 

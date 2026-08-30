@@ -23,6 +23,7 @@ class CycleData {
     required this.lastPeriodStartDate,
     required this.regularityPercent,
     this.loggedDates = const {},
+    this.currentPeriodDates = const {},
   });
 
   final int averageCycleLengthDays;
@@ -30,8 +31,16 @@ class CycleData {
   final int regularityPercent;
 
   /// Dates the user has already submitted a check-in for (drives the
-  /// "Logged" dots on the Calendar screen).
+  /// "Logged" dots on the Calendar screen). Includes both period days
+  /// and mood check-in days.
   final Set<DateTime> loggedDates;
+
+  /// The exact set of dates that make up the CURRENTLY active period
+  /// window (a subset of loggedDates). Tracked explicitly, rather than
+  /// recomputed from lastPeriodStartDate, so the next period log can
+  /// remove precisely these dates — no guessing, no orphaned leftover
+  /// highlights when a new period is logged.
+  final Set<DateTime> currentPeriodDates;
 
   /// 1-indexed day within the current cycle, relative to today.
   int get currentDay {
@@ -69,6 +78,7 @@ class CycleData {
     DateTime? lastPeriodStartDate,
     int? regularityPercent,
     Set<DateTime>? loggedDates,
+    Set<DateTime>? currentPeriodDates,
   }) {
     return CycleData(
       averageCycleLengthDays:
@@ -76,6 +86,7 @@ class CycleData {
       lastPeriodStartDate: lastPeriodStartDate ?? this.lastPeriodStartDate,
       regularityPercent: regularityPercent ?? this.regularityPercent,
       loggedDates: loggedDates ?? this.loggedDates,
+      currentPeriodDates: currentPeriodDates ?? this.currentPeriodDates,
     );
   }
 }
